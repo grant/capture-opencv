@@ -1,10 +1,17 @@
+import sys
+sys.path.append('/usr/local/lib/python2.7/site-packages')
+
+import numpy as np
+import cv2
 import os
 from flask import Flask
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/<url>")
 def hello():
+    return 'hi' + url
+    # img = cv2.imread('messi5.jpg', 0)
     return "Hello world!"
 
 if __name__ == "__main__":
