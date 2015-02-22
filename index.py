@@ -1,6 +1,7 @@
 import sys
 sys.path.append('/usr/local/lib/python2.7/site-packages')
 
+import requests
 import numpy as np
 import cv2
 import os
@@ -17,8 +18,8 @@ while True:
   url = "http://localhost:3000/poll"
   response = urllib.urlopen(url);
   data = json.loads(response.read())
-  if data.imgUrl:
-    urllib.urlretrieve("http://capture-treehacks.herokuapp.com/poll", "download.jpg")
+  if 'imgUrl' in data:
+    urllib.urlretrieve(data[u'imgUrl'], "download.jpg")
 
     img = cv2.imread('test.jpg')
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -90,11 +91,9 @@ while True:
 
     cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 3)
 
-    import requests
-    print rects
-    payload = {'rects': rects}
-    postURL = 'http://capture-treehacks.herokuapp.com/post'
-    r = requests.post(url, data=json.dumps(payload))
+    payload = {'data': json.dumps(rects)}
+    postURL = 'http://localhost:3000/rects'
+    r = requests.post(postURL, data=payload)
 
     # cv2.imshow('image', img)
     # cv2.waitKey(0)
@@ -104,7 +103,7 @@ while True:
     # cv2.waitKey(0)
 
     # cv2.imwrite('01.png', bw)
-  print data
+  print 'data: ' + str(data)
 
   time.sleep(1)
 
