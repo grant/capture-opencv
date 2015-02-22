@@ -105,8 +105,6 @@ while True:
     # Normalize rects to max percents
     maxw = maxpx - minpx
     maxh = maxpy - minpy
-    print maxw
-    print maxh
     def normalize(rect):
       x, y, w, h = rect
       newx = (x - minpx) / (maxpx - minpx)
@@ -116,9 +114,23 @@ while True:
       return [newx, newy, neww, newh]
     rects = map(normalize, rects)
 
+    delta = 0.1
+    finalrects = []
+    for i, r1 in enumerate(rects):
+      x, y, w, h = r1
+      keep = True
+      for j, r2 in enumerate(rects):
+        rx, ry, rw, rh = r2
+        if i > j and abs(rx - x) < delta and abs(ry - y) < delta and abs(rw - w) < delta and abs(rh - h) < delta:
+          keep = False
+      if keep:
+        finalrects.append(r1)
+
+    print finalrects
+
     cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 3)
 
-    payload = {'data': json.dumps(rects)}
+    payload = {'data': json.dumps(finalrects)}
     postURL = 'http://localhost:3000/rects'
     r = requests.post(postURL, data=payload)
 
