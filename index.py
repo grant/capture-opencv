@@ -87,6 +87,12 @@ for c in cnts:
 
 cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 3)
 
+import requests
+print rects
+payload = {'rects': rects}
+postURL = 'http://capture-treehacks.herokuapp.com/post'
+r = requests.post(url, data=json.dumps(payload))
+
 # cv2.imshow('image', img)
 # cv2.waitKey(0)
 
