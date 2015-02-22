@@ -11,11 +11,14 @@ app = Flask(__name__)
 
 import time
 
+# baseURL = "http://localhost:3000"
+baseURL = "http://capture-treehacks.herokuapp.com"
+
 while True:
   import urllib, json
   # url = "http://capture-treehacks.herokuapp.com/poll"
   # url = "http://maps.googleapis.com/maps/api/geocode/json?address=googleplex&sensor=false"
-  url = "http://localhost:3000/poll"
+  url = baseURL + "/poll"
   downloadName = 'download.jpg'
   response = urllib.urlopen(url);
   data = json.loads(response.read())
@@ -106,7 +109,8 @@ while True:
     # Filter some rectangles
     # 1. if the rect similar to a previously seen rect, don't include it
     # 2. if the rect is outside the area of the biggest rect, don't include it
-    delta = 0.1
+    similarRectDelta = 0.1
+    outsideRectDelta = 0
     finalrects = []
     for i, r1 in enumerate(rects):
       x, y, w, h = r1
@@ -115,11 +119,11 @@ while True:
       # previously seen rect
       for j, r2 in enumerate(rects):
         rx, ry, rw, rh = r2
-        if i > j and abs(rx - x) < delta and abs(ry - y) < delta and abs(rw - w) < delta and abs(rh - h) < delta:
-            keep = False
+        if i > j and abs(rx - x) < similarRectDelta and abs(ry - y) < similarRectDelta and abs(rw - w) < similarRectDelta and abs(rh - h) < similarRectDelta:
+          keep = False
 
       # out of biggest rect
-      if x > bx + bw or x < bx or y > by + bh or y < by:
+      if x > bx + bw or x - outsideRectDelta < bx or y > by + bh or y - outsideRectDelta < by:
         keep = False
 
       if keep:
@@ -156,7 +160,7 @@ while True:
       'rects': json.dumps(finalrects),
       'aspectRatio': json.dumps(aspectRatio)
     }
-    postURL = 'http://localhost:3000/rects'
+    postURL = baseURL + '/rects'
     r = requests.post(postURL, data=payload)
 
     # cv2.imshow('image', img)
