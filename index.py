@@ -80,6 +80,10 @@ while True:
     rects = []
 
     # loop over our contours
+    minpx = 1
+    minpy = 1
+    maxpx = 0
+    maxpy = 0
     for c in cnts:
       # approximate the contour
       peri = cv2.arcLength(c, True)
@@ -90,8 +94,27 @@ while True:
       if len(approx) >= 4:
         screenCnt.append(approx)
         x, y, w, h = cv2.boundingRect(approx)
-        percents = [float(x) / width, float(y) / height, float(w) / width, float(h) / height]
+        px, py, pw, ph = float(x) / width, float(y) / height, float(w) / width, float(h) / height
+        minpx = min(minpx, px)
+        minpy = min(minpy, py)
+        maxpx = max(maxpx, px + pw)
+        maxpy = max(maxpy, py + py)
+        percents = [px, py, pw, ph]
         rects.append(percents)
+
+    # Normalize rects to max percents
+    maxw = maxpx - minpx
+    maxh = maxpy - minpy
+    print maxw
+    print maxh
+    def normalize(rect):
+      x, y, w, h = rect
+      newx = (x - minpx) / (maxpx - minpx)
+      newy = (y - minpy) / (maxpy - minpy)
+      neww = w / maxw
+      newh = h / maxh
+      return [newx, newy, neww, newh]
+    rects = map(normalize, rects)
 
     cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 3)
 
