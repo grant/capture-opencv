@@ -8,7 +8,16 @@ from flask import Flask
 
 app = Flask(__name__)
 
-img = cv2.imread('test2.jpg')
+import urllib, json
+# url = "http://capture-treehacks.herokuapp.com/poll"
+url = "http://maps.googleapis.com/maps/api/geocode/json?address=googleplex&sensor=false"
+response = urllib.urlopen(url);
+data = json.loads(response.read())
+print data[u'status']
+
+# urllib.urlretrieve("http://capture-treehacks.herokuapp.com/poll", )
+
+img = cv2.imread('test.jpg')
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 gray = cv2.medianBlur(gray, 3)
 # res,gray = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
@@ -36,8 +45,8 @@ edges = cv2.Canny(gray, 100, 300)
 minLineLength = 100
 maxLineGap = 10
 
-cv2.imshow('image', edges)
-cv2.waitKey(0)
+# cv2.imshow('image', edges)
+# cv2.waitKey(0)
 
 # lines = cv2.HoughLinesP(edges, 1, np.pi/180, 100, minLineLength, maxLineGap)
 # for x1,y1,x2,y2 in lines[0]:
@@ -78,8 +87,8 @@ for c in cnts:
 
 cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 3)
 
-cv2.imshow('image', img)
-cv2.waitKey(0)
+# cv2.imshow('image', img)
+# cv2.waitKey(0)
 
 # cv2.imwrite('houghlines3.jpg', img)
 # cv2.imshow('test', img)
