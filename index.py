@@ -98,7 +98,7 @@ while True:
         minpx = min(minpx, px)
         minpy = min(minpy, py)
         maxpx = max(maxpx, px + pw)
-        maxpy = max(maxpy, py + py)
+        maxpy = max(maxpy, py + ph)
         percents = [px, py, pw, ph]
         rects.append(percents)
 
@@ -114,6 +114,9 @@ while True:
       return [newx, newy, neww, newh]
     rects = map(normalize, rects)
 
+    # Filter some rectangles
+    # 1. if the rect similar to a previously seen rect, don't include it
+    # 2. if the rect has a an x
     delta = 0.1
     finalrects = []
     for i, r1 in enumerate(rects):
@@ -128,9 +131,13 @@ while True:
 
     print finalrects
 
+    aspectRatio = float(width) / height
     cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 3)
 
-    payload = {'data': json.dumps(finalrects)}
+    payload = {
+      'rects': json.dumps(finalrects),
+      'aspectRatio': json.dumps(aspectRatio)
+    }
     postURL = 'http://localhost:3000/rects'
     r = requests.post(postURL, data=payload)
 
