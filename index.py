@@ -16,12 +16,14 @@ while True:
   # url = "http://capture-treehacks.herokuapp.com/poll"
   # url = "http://maps.googleapis.com/maps/api/geocode/json?address=googleplex&sensor=false"
   url = "http://localhost:3000/poll"
+  downloadName = 'download.jpg'
   response = urllib.urlopen(url);
   data = json.loads(response.read())
   if 'imgUrl' in data:
-    urllib.urlretrieve(data[u'imgUrl'], "download.jpg")
+    urllib.urlretrieve(data[u'imgUrl'], downloadName)
 
-    img = cv2.imread('test.jpg')
+    img = cv2.imread(downloadName)
+    height, width, depth = img.shape
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     gray = cv2.medianBlur(gray, 3)
     # res,gray = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
@@ -87,7 +89,9 @@ while True:
       # we can assume that we have found our screen
       if len(approx) >= 4:
         screenCnt.append(approx)
-        rects.append(cv2.boundingRect(approx))
+        x, y, w, h = cv2.boundingRect(approx)
+        percents = [float(x) / width, float(y) / height, float(w) / width, float(h) / height]
+        rects.append(percents)
 
     cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 3)
 
