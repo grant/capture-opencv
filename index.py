@@ -80,10 +80,6 @@ while True:
     rects = []
 
     # loop over our contours
-    minpx = 1
-    minpy = 1
-    maxpx = 0
-    maxpy = 0
     for c in cnts:
       # approximate the contour
       peri = cv2.arcLength(c, True)
@@ -95,41 +91,63 @@ while True:
         screenCnt.append(approx)
         x, y, w, h = cv2.boundingRect(approx)
         px, py, pw, ph = float(x) / width, float(y) / height, float(w) / width, float(h) / height
-        minpx = min(minpx, px)
-        minpy = min(minpy, py)
-        maxpx = max(maxpx, px + pw)
-        maxpy = max(maxpy, py + ph)
         percents = [px, py, pw, ph]
         rects.append(percents)
 
-    # Normalize rects to max percents
-    maxw = maxpx - minpx
-    maxh = maxpy - minpy
-    def normalize(rect):
-      x, y, w, h = rect
-      newx = (x - minpx) / (maxpx - minpx)
-      newy = (y - minpy) / (maxpy - minpy)
-      neww = w / maxw
-      newh = h / maxh
-      return [newx, newy, neww, newh]
-    rects = map(normalize, rects)
+    biggestRect = rects[0]
+    for r in rects:
+      bx, by, bw, bh = biggestRect
+      x, y, w, h = r
+      area1 = bw * bh
+      area2 = w * h
+      if area2 > area1:
+        biggestRect = r
 
     # Filter some rectangles
     # 1. if the rect similar to a previously seen rect, don't include it
-    # 2. if the rect has a an x
+    # 2. if the rect is outside the area of the biggest rect, don't include it
     delta = 0.1
     finalrects = []
     for i, r1 in enumerate(rects):
       x, y, w, h = r1
       keep = True
+
+      # previously seen rect
       for j, r2 in enumerate(rects):
         rx, ry, rw, rh = r2
         if i > j and abs(rx - x) < delta and abs(ry - y) < delta and abs(rw - w) < delta and abs(rh - h) < delta:
-          keep = False
+            keep = False
+
+      # out of biggest rect
+      if x > bx + bw or x < bx or y > by + bh or y < by:
+        keep = False
+
       if keep:
         finalrects.append(r1)
 
-    print finalrects
+    # Get boundaries
+    minpx = 1
+    minpy = 1
+    maxpx = 0
+    maxpy = 0
+    for r in finalrects:
+      px, py, pw, ph = r
+      minpx = min(minpx, px)
+      minpy = min(minpy, py)
+      maxpx = max(maxpx, px + pw)
+      maxpy = max(maxpy, py + ph)
+
+    # Normalize rects to max percents
+    maxpw = maxpx - minpx
+    maxph = maxpy - minpy
+    def normalize(rect):
+      x, y, w, h = rect
+      newx = (x - minpx) / (maxpx - minpx)
+      newy = (y - minpy) / (maxpy - minpy)
+      neww = w / maxpw
+      newh = h / maxph
+      return [newx, newy, neww, newh]
+    finalrects = map(normalize, finalrects)
 
     aspectRatio = float(width) / height
     cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 3)
