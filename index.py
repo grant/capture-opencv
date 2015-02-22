@@ -8,99 +8,105 @@ from flask import Flask
 
 app = Flask(__name__)
 
-import urllib, json
-# url = "http://capture-treehacks.herokuapp.com/poll"
-url = "http://maps.googleapis.com/maps/api/geocode/json?address=googleplex&sensor=false"
-response = urllib.urlopen(url);
-data = json.loads(response.read())
-print data[u'status']
+import time
 
-# urllib.urlretrieve("http://capture-treehacks.herokuapp.com/poll", )
+while True:
+  import urllib, json
+  # url = "http://capture-treehacks.herokuapp.com/poll"
+  # url = "http://maps.googleapis.com/maps/api/geocode/json?address=googleplex&sensor=false"
+  url = "http://localhost:3000/poll"
+  response = urllib.urlopen(url);
+  data = json.loads(response.read())
+  if data.imgUrl:
+    urllib.urlretrieve("http://capture-treehacks.herokuapp.com/poll", "download.jpg")
 
-img = cv2.imread('test.jpg')
-gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-gray = cv2.medianBlur(gray, 3)
-# res,gray = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
-# gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
+    img = cv2.imread('test.jpg')
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    gray = cv2.medianBlur(gray, 3)
+    # res,gray = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
+    # gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
 
-edges = cv2.Canny(gray, 100, 300)
+    edges = cv2.Canny(gray, 100, 300)
 
-# (cnts, _) = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-# cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:10]
-# screenCnt = None
-# # loop over our contours
-# for c in cnts:
-#   # approximate the contour
-#   peri = cv2.arcLength(c, True)
-#   approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+    # (cnts, _) = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:10]
+    # screenCnt = None
+    # # loop over our contours
+    # for c in cnts:
+    #   # approximate the contour
+    #   peri = cv2.arcLength(c, True)
+    #   approx = cv2.approxPolyDP(c, 0.02 * peri, True)
 
-#   # if our approximated contour has four points, then
-#   # we can assume that we have found our screen
-#   if len(approx) == 4:
-#     screenCnt = approx
-#     break
+    #   # if our approximated contour has four points, then
+    #   # we can assume that we have found our screen
+    #   if len(approx) == 4:
+    #     screenCnt = approx
+    #     break
 
-# cv2.drawContours(img, [screenCnt], -1, (0, 255, 0), 3)
+    # cv2.drawContours(img, [screenCnt], -1, (0, 255, 0), 3)
 
-minLineLength = 100
-maxLineGap = 10
+    minLineLength = 100
+    maxLineGap = 10
 
-# cv2.imshow('image', edges)
-# cv2.waitKey(0)
+    # cv2.imshow('image', edges)
+    # cv2.waitKey(0)
 
-# lines = cv2.HoughLinesP(edges, 1, np.pi/180, 100, minLineLength, maxLineGap)
-# for x1,y1,x2,y2 in lines[0]:
-#     cv2.line(img,(x1,y1),(x2,y2),(0,255,0),2)
+    # lines = cv2.HoughLinesP(edges, 1, np.pi/180, 100, minLineLength, maxLineGap)
+    # for x1,y1,x2,y2 in lines[0]:
+    #     cv2.line(img,(x1,y1),(x2,y2),(0,255,0),2)
 
-edges = cv2.bilateralFilter(edges, 11, 90, 90)
+    edges = cv2.bilateralFilter(edges, 11, 90, 90)
 
-# lines = cv2.HoughLines(edges,1,np.pi/180,200)
-# for rho,theta in lines[0]:
-#     a = np.cos(theta)
-#     b = np.sin(theta)
-#     x0 = a*rho
-#     y0 = b*rho
-#     x1 = int(x0 + 1000*(-b))
-#     y1 = int(y0 + 1000*(a))
-#     x2 = int(x0 - 1000*(-b))
-#     y2 = int(y0 - 1000*(a))
+    # lines = cv2.HoughLines(edges,1,np.pi/180,200)
+    # for rho,theta in lines[0]:
+    #     a = np.cos(theta)
+    #     b = np.sin(theta)
+    #     x0 = a*rho
+    #     y0 = b*rho
+    #     x1 = int(x0 + 1000*(-b))
+    #     y1 = int(y0 + 1000*(a))
+    #     x2 = int(x0 - 1000*(-b))
+    #     y2 = int(y0 - 1000*(a))
 
-    # cv2.line(img,(x1,y1),(x2,y2),(0,0,255),2)
+        # cv2.line(img,(x1,y1),(x2,y2),(0,0,255),2)
 
-(cnts, _) = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:10]
+    (cnts, _) = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:10]
 
-screenCnt = []
-rects = []
+    screenCnt = []
+    rects = []
 
-# loop over our contours
-for c in cnts:
-  # approximate the contour
-  peri = cv2.arcLength(c, True)
-  approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+    # loop over our contours
+    for c in cnts:
+      # approximate the contour
+      peri = cv2.arcLength(c, True)
+      approx = cv2.approxPolyDP(c, 0.02 * peri, True)
 
-  # if our approximated contour has four points, then
-  # we can assume that we have found our screen
-  if len(approx) >= 4:
-    screenCnt.append(approx)
-    rects.append(cv2.boundingRect(approx))
+      # if our approximated contour has four points, then
+      # we can assume that we have found our screen
+      if len(approx) >= 4:
+        screenCnt.append(approx)
+        rects.append(cv2.boundingRect(approx))
 
-cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 3)
+    cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 3)
 
-import requests
-print rects
-payload = {'rects': rects}
-postURL = 'http://capture-treehacks.herokuapp.com/post'
-r = requests.post(url, data=json.dumps(payload))
+    import requests
+    print rects
+    payload = {'rects': rects}
+    postURL = 'http://capture-treehacks.herokuapp.com/post'
+    r = requests.post(url, data=json.dumps(payload))
 
-# cv2.imshow('image', img)
-# cv2.waitKey(0)
+    # cv2.imshow('image', img)
+    # cv2.waitKey(0)
 
-# cv2.imwrite('houghlines3.jpg', img)
-# cv2.imshow('test', img)
-# cv2.waitKey(0)
+    # cv2.imwrite('houghlines3.jpg', img)
+    # cv2.imshow('test', img)
+    # cv2.waitKey(0)
 
-# cv2.imwrite('01.png', bw)
+    # cv2.imwrite('01.png', bw)
+  print data
+
+  time.sleep(1)
 
 # @app.route("/<url>")
 # def hello():
